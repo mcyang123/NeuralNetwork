@@ -1,11 +1,14 @@
 import numpy as np
 import random
 class network(object):
-	def __init__(self,sizes):
+	def __init__(self,sizes,cost):
 		self.sizes = sizes
 		self.layers = len(sizes)
 		self.weights = [np.random.randn(x,y) for x,y in zip(sizes[1:],sizes[:-1])]
 		self.biases = [np.random.randn(x,1) for x in sizes[1:]]
+		#self.CrossEntropyCost = 'CrossEntropyCost'
+		#self.MSE = 'MSE'
+		self.method = cost
 
  	def feedforward(self,x):
  		""" caculate the output of the network"""
@@ -58,7 +61,10 @@ class network(object):
  		cell_out.pop(-1)
 		graded_w = [np.zeros(w.shape) for w in self.weights]
 		graded_b = [np.zeros(b.shape) for b in self.biases]
-		ceta = (x-y)*sigmoid_derivative(Zs[-1])     #BP1
+		if self.method == 'MSE':
+			ceta = (x-y)*sigmoid_derivative(Zs[-1])     #BP1
+		else:
+			ceta = x-y
 		graded_b[-1] = ceta    #BP3
 		graded_w[-1] = np.dot(ceta,cell_out[-1].T)   #BP4
 		for i in xrange(1,self.layers-1):
@@ -81,5 +87,5 @@ def sigmoid_derivative(z):
 if __name__ == "__main__":
 	import mnist_loader
 	tra,val,tes = mnist_loader.load_data_wrapper()
-	net = network([784,30,10,10])
-	net.SGD(10,10,3.0,tra,tes)
+	net = network([784,30,10,10],cost='CrossEntropyCost')
+	net.SGD(5,10,3.0,tra,tes)
